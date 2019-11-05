@@ -2,11 +2,11 @@ import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinonChai from 'sinon-chai';
 import {createFixtureLoader, solidity} from 'ethereum-waffle';
-import {Contract, Wallet} from 'ethers';
+import {Contract, Wallet, constants} from 'ethers';
 import basicSDK from '../fixtures/basicSDK';
 import {RelayerUnderTest} from '@universal-login/relayer';
 import {DeployedWallet} from '../../lib';
-import {walletFromBrain} from '@universal-login/commons';
+import {walletFromBrain, ETHER_NATIVE_TOKEN} from '@universal-login/commons';
 
 chai.use(solidity);
 chai.use(sinonChai);
@@ -61,5 +61,32 @@ describe('E2E: DeployedWallet', async () => {
       const connectedDevices = await deployedWallet.getConnectedDevices();
       expect(connectedDevices.map(({publicKey}: any) => publicKey)).to.include(address);
     }).timeout(15000);
+  });
+
+  describe('getBalance', async () => {
+    const initialEthBalance = '1999999999999316000';
+    const initialMockTokenBalance = '1000000000000000000';
+
+    it('initial eth balance', async () => {
+      const balance = await deployedWallet.getBalance(ETHER_NATIVE_TOKEN.address);
+      expect(balance).to.equal(initialEthBalance);
+    });
+
+    it('initialEthBalance + 1 ETH', async () => {
+      await otherWallet.sendTransaction({to: deployedWallet.contractAddress, value: constants.WeiPerEther});
+      const balance = await deployedWallet.getBalance(ETHER_NATIVE_TOKEN.address);
+      expect(balance).to.equal(constants.WeiPerEther.add(initialEthBalance));
+    });
+
+    it('initial mockToken balance', async () => {
+      const balance = await deployedWallet.getBalance(mockToken.address);
+      expect(balance).to.equal(initialMockTokenBalance);
+    });
+
+    it('initial mockToken balance + sent value', async () => {
+      await mockToken.transfer(deployedWallet.contractAddress, constants.WeiPerEther);
+      const balance = await deployedWallet.getBalance(mockToken.address);
+      expect(balance).to.equal(constants.WeiPerEther.add(initialMockTokenBalance));
+    });
   });
 });

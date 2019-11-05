@@ -197,6 +197,10 @@ class UniversalLoginSDK {
     return contract.lastNonce();
   }
 
+  async getBalance(contractAddress: string, tokenAddress: string) {
+    return this.balanceChecker.getBalance(contractAddress, tokenAddress);
+  }
+
   async getWalletContractAddress(ensName: string) {
     const walletContractAddress = await this.resolveName(ensName);
     if (walletContractAddress && await this.blockchainService.getCode(walletContractAddress)) {

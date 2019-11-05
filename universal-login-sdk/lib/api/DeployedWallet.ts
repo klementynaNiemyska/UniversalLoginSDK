@@ -82,6 +82,10 @@ export class DeployedWallet implements ApplicationWallet {
     return this.sdk.getNonce(this.contractAddress);
   }
 
+  async getBalance(tokenAddress: string) {
+    return this.sdk.getBalance(this.contractAddress, tokenAddress);
+  }
+
   async getConnectedDevices() {
     return this.sdk.getConnectedDevices(this.contractAddress, this.privateKey);
   }

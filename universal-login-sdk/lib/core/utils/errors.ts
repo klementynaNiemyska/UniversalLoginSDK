@@ -1,5 +1,6 @@
 type ErrorType =
   'InsufficientGas' |
+  'InsufficientBalance' |
   'WalletNotFound' |
   'ConcurrentAuthorisation' |
   'ConcurrentDeployment' |
@@ -99,6 +100,13 @@ export class InvalidPassphrase extends ValidationFailed {
   constructor() {
     super('Passphrase is not valid', 'InvalidPassphrase');
     Object.setPrototypeOf(this, InvalidPassphrase.prototype);
+  }
+}
+
+export class InsufficientBalance extends ValidationFailed {
+  constructor() {
+    super(`Insufficient Balance`, 'InsufficientBalance');
+    Object.setPrototypeOf(this, InsufficientBalance.prototype);
   }
 }
 
