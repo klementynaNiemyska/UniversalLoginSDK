@@ -46,7 +46,7 @@
     "eslint": "^6.1.0",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
-    "ganache-core": "^2.2.1",
+    "ganache-core": "2.9.0-istanbul.0",
     "mocha": "^5.2.0",
     "node-fetch": "^2.6.0",
     "rimraf": "^2.6.3",
