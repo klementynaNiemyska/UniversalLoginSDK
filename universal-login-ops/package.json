@@ -25,7 +25,7 @@
     "ens-builder": "^2.0.1",
     "ethereum-waffle": "2.0.15",
     "ethers": "^4.0.39",
-    "ganache-cli": "^6.4.5",
+    "ganache-cli": "^6.8.0-istanbul.0",
     "ganache-core": "2.9.0-istanbul.0",
     "knex": "^0.20.0",
     "lodash.clonedeep": "^4.5.0",
