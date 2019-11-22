@@ -3,7 +3,7 @@ import {Route, Switch} from 'react-router-dom';
 import {useModalService, useProperty} from '@universal-login/react';
 import HomeScreen from './Home/HomeScreen';
 import NotFound from './NotFound';
-import {PrivateRoute} from './PrivateRoute';
+import {PrivateRoute, WalletRoute} from './PrivateRoute';
 import {useServices} from '../hooks';
 import {WelcomeScreen} from './Home/WelcomeScreen';
 import {TermsAndConditionsScreen} from './Home/TermsAndConditionsScreen';
@@ -15,35 +15,40 @@ import {CreateFlow} from './CreateAccount/CreateFlow';
 const App = () => {
   const modalService = useModalService<WalletModalType, WalletModalPropType>();
   const {walletService} = useServices();
-  const authorized = useProperty(walletService.isAuthorized);
+  const walletState = useProperty(walletService.stateProperty);
 
   return (
     <WalletModalContext.Provider value={modalService}>
       <Switch>
-        <Route
+        {console.log(walletState.kind)}
+        <WalletRoute
           exact
           path="/welcome"
+          walletState={walletState}
           render={() => <WelcomeScreen />}
         />
-        <Route
+        <WalletRoute
           exact
           path="/terms"
+          walletState={walletState}
           render={() => <TermsAndConditionsScreen />}
         />
         <Route
           exact
           path="/privacy"
-          target="_blank"
+          walletState={walletState}
           render={() => <PrivacyPolicy />}
         />
         <Route
           exact
           path="/create"
+          walletState={walletState}
           render={() => <CreateFlow />}
         />
-        <Route
+        <WalletRoute
           exact
           path="/connect"
+          walletState={walletState}
           render={() =>
             <div className="main-bg">
               <div className="box-wrapper">
@@ -53,8 +58,8 @@ const App = () => {
               </div>
             </div>}
         />
-        <PrivateRoute
-          authorized={authorized}
+        <WalletRoute
+          walletState={walletState}
           path="/"
           render={() => <HomeScreen />}
         />
