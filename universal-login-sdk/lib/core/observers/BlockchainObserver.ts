@@ -16,6 +16,7 @@ class BlockchainObserver extends ObserverBase {
   }
 
   async execute() {
+    console.log('.');
     await this.fetchEvents();
   }
 
@@ -31,9 +32,11 @@ class BlockchainObserver extends ObserverBase {
       const filter = JSON.parse(emitter);
       const eventsFilter = {fromBlock: this.lastBlock, address: filter.contractAddress, topics};
       const events = await this.blockchainService.getLogs(eventsFilter);
+      console.log(events)
       for (const event of events) {
         const {key} = this.parseArgs(type, event);
         if (filter.key === 'undefined' || filter.key === key) {
+          console.log(this.parseArgs(type, event));
           this.emitters[emitter].emit(type, this.parseArgs(type, event));
         }
       }
