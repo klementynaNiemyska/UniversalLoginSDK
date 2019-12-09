@@ -1,5 +1,5 @@
 import {providers, utils} from 'ethers';
-import {SupportedToken, ensure, RequiredBalanceChecker, BalanceChecker} from '@universal-login/commons';
+import {SupportedToken, ensure, RequiredBalanceChecker, BalanceChecker, Nullable} from '@universal-login/commons';
 import {ConcurrentDeployment} from '../utils/errors';
 import ObserverRunner from './ObserverRunner';
 
@@ -9,8 +9,10 @@ export class DeploymentReadyObserver extends ObserverRunner {
   private contractAddress?: string;
   private callback?: ReadyToDeployCallback;
   private requiredBalanceChecker: RequiredBalanceChecker;
+  private supportedTokens: Nullable<SupportedToken[]> = null;
+  private isSubscribed = false;
 
-  constructor(private supportedTokens: SupportedToken[], private provider: providers.Provider) {
+  constructor(private provider: providers.Provider) {
     super();
     this.requiredBalanceChecker = new RequiredBalanceChecker(new BalanceChecker(this.provider));
   }
@@ -20,19 +22,19 @@ export class DeploymentReadyObserver extends ObserverRunner {
       supportedTokens.filter(supportedToken => utils.parseEther(supportedToken.minimalAmount).gt(0));
     if (tokensWithValidMinimaAmount.length > 0) {
       this.supportedTokens = supportedTokens;
+      this.isSubscribed && this.start();
     }
     return tokensWithValidMinimaAmount;
   }
 
-  async startAndSubscribe(contractAddress: string, callback: ReadyToDeployCallback) {
+  async subscribeAndStart(contractAddress: string, callback: ReadyToDeployCallback) {
     ensure(this.isStopped(), ConcurrentDeployment);
     this.contractAddress = contractAddress;
     this.callback = callback;
-    this.start();
-    return () => {
-      this.contractAddress = undefined;
-      this.stop();
-    };
+    this.isSubscribed = true;
+    if (this.supportedTokens) {
+      this.start();
+    }
   }
 
   execute() {
@@ -40,7 +42,7 @@ export class DeploymentReadyObserver extends ObserverRunner {
   }
 
   async checkDeploymentReadiness() {
-    if (this.contractAddress) {
+    if (this.contractAddress && this.supportedTokens) {
       const tokenAddress = await this.requiredBalanceChecker.findTokenWithRequiredBalance(this.supportedTokens, this.contractAddress);
       if (tokenAddress) {
         this.onDeploymentReady(this.contractAddress, tokenAddress);

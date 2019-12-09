@@ -55,7 +55,7 @@ export class FutureWalletFactory extends MineableFactory {
       (hash: string) => this.relayerApi.getDeploymentStatus(hash),
     );
     this.ensService = new ENSService(provider, config.chainSpec.ensAddress);
-    this.deploymentReadyObserver = new DeploymentReadyObserver(config.supportedTokens, provider);
+    this.deploymentReadyObserver = new DeploymentReadyObserver(provider);
   }
 
   private async setupInitData(publicKey: string, ensName: string, gasPrice: string, gasToken: string) {
@@ -85,7 +85,7 @@ export class FutureWalletFactory extends MineableFactory {
       contractAddress,
       waitForBalance: async () => new Promise<BalanceDetails>(
         (resolve) => {
-          this.deploymentReadyObserver.startAndSubscribe(
+          this.deploymentReadyObserver.subscribeAndStart(
             contractAddress,
             (tokenAddress, contractAddress) => resolve({tokenAddress, contractAddress}),
           ).catch(console.error);
